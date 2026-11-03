@@ -6,6 +6,10 @@ exports.registerForm = (req,res)=>{
     res.render('registerForm')
 }
  
+exports.loginForm = (req,res)=>{
+    res.render('loginForm')
+}
+
 exports.registerUser = async(req,res)=>{
     try{
         // const {name,email,password} = req.body;
@@ -18,6 +22,30 @@ exports.registerUser = async(req,res)=>{
         await employeeModel.create(req.body)
            res.redirect('/')
        }catch(error){
+           res.status(400).json({
+               success:false,
+               message:error.message
+           })
+       }
+}
+ 
+exports.loginAuthUser = async(req,res)=>{
+    try{
+        const {email,password} = req.body;
+        const user = await employeeModel.findOne({email})
+        if(!user){
+            return res.status(401,res.send("Invalid user"))
+        }
+
+        const isMatch = await bcrypt.compare(password,user.password)
+
+        if(!isMatch){
+              return res.status(401,res.send("Invalid email or password"))
+        }
+
+        req.session.userID = user._id;
+        res.redirect('/dashboard')
+    }catch(error){
            res.status(400).json({
                success:false,
                message:error.message
