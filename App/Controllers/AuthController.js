@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs')
 const employeeModel = require('../Models/employee.model')
+
 const { name } = require('ejs')
 
 exports.registerForm = (req,res)=>{
@@ -51,4 +52,16 @@ exports.loginAuthUser = async(req,res)=>{
                message:error.message
            })
        }
+}
+
+
+exports.logout = (req,res)=>{
+    req.session.destroy((error)=>{
+        if(error){
+            return res.status(500).send('Logout failed')
+        }
+
+        res.clearCookie('authID')
+        return res.redirect('/login')
+    })
 }

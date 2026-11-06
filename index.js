@@ -2,7 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const path = require('path')
 const session = require('express-session')
-
+const MongoStore = require('connect-mongo').default
 const router =  require('./Routes/routes')
 
 require("dotenv").config();
@@ -15,10 +15,15 @@ app.use(session({
     secret:process.env.SECRET_SESSION_KEY,
     resave:false,
     saveUninitialized:false,
-    cookie:{
-        maxAge:1000 * 60 * 60 * 24,
-        httpOnly:false
-    },
+    store: MongoStore.create({
+        mongoUrl: process.env.DB_URL,
+        collectionName: 'sessions',
+        ttl: 60 * 60 * 24
+    })
+    // cookie:{
+    //     maxAge:1000 * 60 * 60 * 24,
+    //     httpOnly:false
+    // },
 }))
 
 app.use(router);
